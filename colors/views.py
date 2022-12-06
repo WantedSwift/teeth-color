@@ -5,6 +5,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 from django.forms.models import model_to_dict
+from pathlib import Path
+import operator
+
 
 from scipy.linalg import norm
 from scipy import sum, average
@@ -24,7 +27,7 @@ def upload_image_user(request):
         models1 = img.objects.create(image=image)
         image = cv.imread(str(models1.image))
 		
-        list_response = start_pars(image)
+        list_response = start_pars2(image)
        
   
         return JsonResponse({
@@ -38,6 +41,44 @@ def upload_image_user(request):
       #      'status': False,
       #      'message': "invalid user"
       #  })
+
+
+def start_pars2(image):
+	imgn = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+	imgn = cv.resize(imgn, (47, 73)) 
+
+
+	images = Path("colors/teeh_image").glob("*.png")
+	image_strings = [str(p) for p in images]
+	print('hi',image_strings)
+	list2 = {}
+
+	for item in image_strings:
+		img3 = cv.imread(item)
+		img3 = cv.resize(img3, (47, 73))
+		item2 = cv.cvtColor(img3, cv.COLOR_BGR2GRAY)
+		error , diff = mse(item2,imgn)
+		item = item.replace("colors/teeh_image/","")
+		item = item.replace(".png","")
+		list2[item] = error
+		print(item,error)
+
+	list2 = sorted(list2.items(), key=operator.itemgetter(1))
+	list2 = [list2[0],list2[1],list2[2]]
+
+	return list2
+
+
+		
+
+
+
+def mse(img1, img2):
+   h, w = img1.shape
+   diff = cv.subtract(img1, img2)
+   err = np.sum(diff**2)
+   mse = err/(float(h*w))
+   return mse, diff
 
 def to_grayscale(arr):
     "If arr is a color image (3D array), convert it to grayscale (2D array)."
