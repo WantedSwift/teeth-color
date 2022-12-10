@@ -7,7 +7,7 @@ import json
 from django.forms.models import model_to_dict
 from pathlib import Path
 import operator
-
+import json
 
 from scipy.linalg import norm
 from scipy import sum, average
@@ -64,7 +64,8 @@ def start_pars2(image):
 		print(item,error)
 
 	list2 = sorted(list2.items(), key=operator.itemgetter(1))
-	list2 = [list2[0],list2[1],list2[2]]
+	list2 = list2[0],list2[1],list2[2]
+	list2 = list2
 
 	return list2
 
